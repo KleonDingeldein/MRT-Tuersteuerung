@@ -3,14 +3,21 @@
 //
 
 #include "Aktor.h"
+#include "Hardware.h"
 
+// Constructor
 Aktor::Aktor(unsigned int port, unsigned int pin, std::string name, bool status) :
-    Hardware(port, pin, name, status)
+    Hardware(port, pin, std::move(name), status)
 
 {
 
 }
 
-Aktor::~Aktor() {
+// Destructor
+Aktor::~Aktor() = default;
 
+// Funktion setzt den Status des Aktors
+// 1/an oder 0/aus
+void Aktor::setStatus(bool newStatus) {
+    status = newStatus;
 }

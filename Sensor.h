@@ -8,16 +8,18 @@
 #include <iostream>
 #include "Hardware.h"
 
+//Sensor erbt von Hardware
 class Sensor : public Hardware {
 private:
-    bool activationMode;
+    bool activationMode;    // high-active oder low-active
+
 protected:
 
 public:
-    Sensor(int port, unsigned int pin, std::string name, bool status, bool activationMode); //Constructor
-    ~Sensor();
-    bool getStatus();
-};
+    Sensor(int port, unsigned int pin, std::string name, bool status, bool activationMode);     //Constructor
+    ~Sensor();          //Destructor
+    bool getStatus();   // liefert true bzw. 1 wenn der Sensor aktiv ist und false bzw. 0 wenn der Sensor inaktiv ist.
 
+};
 
 #endif //TUERSTEUERUNG_SENSOR_H

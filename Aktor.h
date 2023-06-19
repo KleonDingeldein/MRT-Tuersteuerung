@@ -9,12 +9,16 @@
 
 //Klasse Aktor erbt/abgeleitet von Hardware
 class Aktor : public Hardware {
-
 private:
+
 protected:
+
+
 public:
-	Aktor(unsigned int port, unsigned int pin, std::string name, bool status); //Constructor
-    ~Aktor();
+	Aktor(unsigned int port, unsigned int pin, std::string name, bool status);      //Constructor
+    ~Aktor();       //Destructor
+    void setStatus(bool newStatus);
+
 };
 
 

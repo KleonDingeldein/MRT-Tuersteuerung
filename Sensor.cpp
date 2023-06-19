@@ -4,16 +4,19 @@
 
 #include "Sensor.h"
 
-
+// Constructor
 Sensor::Sensor(int port, unsigned int pin, std::string name, bool status, bool activationMode) :
-    Hardware(port, pin, name, status),
+    Hardware(port, pin, std::move(name), status),
     activationMode(activationMode)
 {
 
 }
 
-Sensor::~Sensor() {}
+// Destructor
+Sensor::~Sensor() = default;
 
+// Auslesen des Sendorstatus
+// 1/true für aktiv oder 0/false für inaktiv
 bool Sensor::getStatus() {
 
     if(activationMode == status) {
