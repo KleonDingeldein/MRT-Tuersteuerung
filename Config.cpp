@@ -47,11 +47,29 @@ void Config::read(std::string filename)
             int s  = 0; //Zähler für die Spalten
             while(std::getline(linestream,token,','))
             {
-                output << token << "\n";
+              output << token << "\n";
+                hardware_config[z][s]=output;
                 s++;
 
             }
            z++;
+        }
+        // Erzeugung der Sensoren (Port 0 oder 1) und Aktoren (Port 2)
+        int n = 0; 
+        if(hardware_config[n][0]<2)
+        {
+            ArraySensor.pushback(Sensor(hardware_config[n][0],hardware_config[n][1],hardware_config[n][2],hardware_config[n][3],
+            hardware_config[n][4],hardware_config[n][5])); 
+            n++;   
+        }
+        else
+        {   if(hardware_config[n][0]=2)
+            {
+            ArrayAktor.pushback(Aktor(hardware_config[n][0],hardware_config[n][1],hardware_config[n][2],hardware_config[n][3],
+            hardware_config[n][4],hardware_config[n][5]));  
+            }
+            else{ output << "config konnte nicht übertragen werden\n"}
+            n++;
         }
         /*
                 //über alle elemente der liste
