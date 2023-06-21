@@ -18,12 +18,14 @@ Hardware::Hardware(unsigned int port, unsigned int pin, std::string name, bool s
 Hardware::~Hardware() = default;
 
 // Funktion liefert einen string mit dem Namen der Instanz zurück
-std::string Hardware::getName() {
+std::string Hardware::getName()
+{
     return name;
 }
 
 // Funktion liefert des Status der Instanz zurück
 // 1/true für aktiv oder 0/false für inaktiv
-bool Hardware::getStatus() {
+bool Hardware::getStatus()
+{
     return (status);
 }

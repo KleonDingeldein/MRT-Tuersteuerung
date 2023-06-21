@@ -10,18 +10,18 @@
 class Hardware {
 private:
 
-public:
-    Hardware(unsigned int port, unsigned int pin, std::string name, bool status);  //Constructor
-    ~Hardware();    //Destructor
-    std::string getName();
-    bool getStatus();
-
 protected:
     unsigned int port;
     unsigned int pin;
     bool status;
     std::string name;
 
+public:
+    Hardware(unsigned int port, unsigned int pin, std::string name, bool status);  //Constructor
+    ~Hardware();    //Destructor
+    std::string getName();
+
+    virtual bool getStatus(); //virtual da in der abgeleiteten Klasse überschrieben
 };
 
 

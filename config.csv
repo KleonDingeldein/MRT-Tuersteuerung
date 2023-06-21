@@ -1,0 +1,3 @@
+port,pin,name,kategorie,aktivierung
+1   ,1,LS,öffner,low_activ
+2   ,2,nz,öffner,high_active

@@ -1,0 +1,26 @@
+----start----
+...start config
+port
+pin
+name
+kategorie
+aktivierung
+betriebsmodus
+1   
+1
+LS
+öffner
+low_activ
+ 1111
+2   
+2
+nz
+öffner
+high_active
+1010
+port
+pin
+activation
+kategorie
+...end config
+----ende----
