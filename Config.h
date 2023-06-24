@@ -21,8 +21,8 @@ private:
 	Sensor BW1, BW2;
 
 	// Vekotoren (keine Arrays) weil man angeblich über "name".emplace(Element) dynamische vergrößern kann
-	std::vector<Sensor> ELO, ELG, NTA, NTZ, NIT, NVT;
-	std::vector<Aktor> OPEN, CLOSE, LIGHT;
+	std::vector<Sensor> sensorliste;
+	std::vector<Aktor> aktorliste;
 
 protected:
 
