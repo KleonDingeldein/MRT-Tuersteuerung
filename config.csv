@@ -1,6 +1,6 @@
-port,pin,funktion,aktivierung, zustand
-0   ,0,BW1,high_active, 0
-0   ,1,BW2,high_active,0
+port, pin, funktion, zustand, aktivierung
+0   ,0,BW1, 0, high_active
+0   ,1,BW2, 0, high_active
 0
 0
 0
