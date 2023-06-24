@@ -1,3 +1,39 @@
-port,pin,name,kategorie,aktivierung
-1   ,1,LS,öffner,low_activ
-2   ,2,nz,öffner,high_active
+port,pin,funktion,aktivierung, zustand
+0   ,0,BW1,high_active, 0
+0   ,1,BW2,high_active,0
+0
+0
+0
+0
+0
+1
+1
+1
+1
+1
+1
+1
+1
+2
+2
+2
+2
+2
+2
+2
+2
+
+Eingänge:
+- Betriebswahl Schalter 1  BW1
+- Betriebswahl Schalter 2  BW2
+- Endlage offen            ELO
+- Endlage geschlossen      ELG
+- Taster manuell öffnen    NTA
+- Taster manuell schließen NTZ
+- Nutzer in Tür            NIT
+- Nutzer vor Tür           NVT
+
+Ausgänge:
+- Tür öffnen              OPEN
+- Tür schließen           CLOSE
+- Blinkleuchte            LIGHT
