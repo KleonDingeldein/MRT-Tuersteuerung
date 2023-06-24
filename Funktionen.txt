@@ -1,0 +1,34 @@
+
+Bool-Funktionen die Sensoraktiviteat zurueckgeben:
+
+bool manuelles_oeffnen()
+bool manuelles_schliessen()
+bool person_vor_tuer()
+bool person_in_tuer()
+bool endlage_offen()
+bool endlage_geschlossen()
+bool mehrere_sensoren_aktiv()   //true sobald 2 sensoren in der liste mit status==1
+
+
+Betriebswahl Funktion:
+
+int betriebswahl() {
+    retrun(0) fuer automatik
+    return(1) fuer handbetrieb
+    return(2) fuer reparaturbetrieb
+    return(3) fuer aus
+    }
+
+
+Bool-Funktionen die Aktoraktiviteat zurueckgeben:
+
+bool oeffnet()          // true wenn ein oder mehrere motoren in der liste die tuer oeffnen
+bool schliesst()        // true wenn ein oder mehrere motoren in der liste die tuer schliessen
+bool lampe_leuchtet()   //nicht zwingend noetig
+
+Funktionen die Aktoraktiviteat setzen:
+
+void schliessen         // alle oeffnermotoren aktiviern (in der liste status auf 1 setzen)
+void oeffnen            // alle schliessmotoren aktivieren (in der liste status auf 1 setzen)
+void lampe_an
+void lampe_aus
