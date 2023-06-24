@@ -14,12 +14,26 @@
 
 class Config {
 private:
+	// Einlesen der Config-Datei:
+	void read(std::string filename);
+
+	// Auswahl der Betriebsart
+	Sensor BW1, BW2;
+
+	// Vekotoren (keine Arrays) weil man angeblich über "name".emplace(Element) dynamische vergrößern kann
+	std::vector<Sensor> ELO, ELG, NTA, NTZ, NIT, NVT;
+	std::vector<Aktor> OPEN, CLOSE, LIGHT;
+
 protected:
+
+
 public:
-    Config();
+    Config(std::string datei);
     ~Config();
 
-    void read(std::string filename);
+    // Funktionen welche von Betriebsarten benötigtt werden:
+    
+
 };
 
 
