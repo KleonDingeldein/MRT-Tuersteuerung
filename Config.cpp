@@ -8,9 +8,9 @@
 #include <sstream>
 #include <iostream>
 
-Config::Config()
+Config::Config(std::string datei)
 {
-
+    read(datei);
 }
 
 Config::~Config()
