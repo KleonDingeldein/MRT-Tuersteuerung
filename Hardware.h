@@ -11,13 +11,13 @@ class Hardware {
 private:
 
 protected:
-    unsigned int port;
-    unsigned int pin;
+    int port;
+    int pin;
     bool status;
     std::string name;
 
 public:
-    Hardware(unsigned int port, unsigned int pin, std::string name, bool status);  //Constructor
+    Hardware(int port, int pin, std::string name, bool status);  //Constructor
     ~Hardware();    //Destructor
     std::string getName();
 
@@ -25,4 +25,4 @@ public:
 };
 
 
-#endif //TUERSTEUERUNG_HARDWARE_H
+#endif /* HARDWARE_H_ */
