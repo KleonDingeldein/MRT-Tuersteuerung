@@ -15,11 +15,12 @@ protected:
 
 
 public:
-	Aktor(unsigned int port, unsigned int pin, std::string name, bool status);      //Constructor
+	Aktor(int port, int pin, std::string name, bool status);      //Constructor
     ~Aktor();       //Destructor
     void setStatus(bool newStatus);
 
 };
+
 
 
 #endif //TUERSTEUERUNG_AKTOR_H
