@@ -5,7 +5,7 @@
 #include "Hardware.h"
 
 // Constructor
-Hardware::Hardware(unsigned int port, unsigned int pin, std::string name, bool status) :
+Hardware::Hardware(int port, int pin, std::string name, bool status) :
     port(port),
     pin(pin),
     name(std::move(name)),
