@@ -16,10 +16,12 @@ private:
 protected:
 
 public:
-    Sensor(unsigned int port, unsigned int pin, std::string name, bool status, bool activationMode);     //Constructor
+    Sensor(int port, int pin, std::string name, bool status, bool activationMode);     //Constructor
     ~Sensor();          //Destructor
     bool getStatus();   // liefert true bzw. 1, wenn der Sensor aktiv ist und false bzw. 0, wenn der Sensor inaktiv ist.
 
 };
 
-#endif //TUERSTEUERUNG_SENSOR_H
+
+
+#endif /* SENSOR_H_ */
