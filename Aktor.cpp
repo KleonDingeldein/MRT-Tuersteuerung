@@ -6,7 +6,7 @@
 #include "Hardware.h"
 
 // Constructor
-Aktor::Aktor(unsigned int port, unsigned int pin, std::string name, bool status) :
+Aktor::Aktor(int port, int pin, std::string name, bool status) :
     Hardware(port, pin, std::move(name), status)
 
 {
@@ -21,3 +21,4 @@ Aktor::~Aktor() = default;
 void Aktor::setStatus(bool newStatus) {
     status = newStatus;
 }
+
