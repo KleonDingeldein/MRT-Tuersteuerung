@@ -5,7 +5,7 @@
 #include "Sensor.h"
 
 // Constructor
-Sensor::Sensor(unsigned int port, unsigned int pin, std::string name, bool status, bool activationMode) :
+Sensor::Sensor(int port, int pin, std::string name, bool status, bool activationMode) :
     Hardware(port, pin, std::move(name), status),
     activationMode(activationMode)
 {
