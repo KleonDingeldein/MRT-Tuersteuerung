@@ -22,6 +22,7 @@ public:
     std::string getName();
 
     virtual bool getStatus(); //virtual da in der abgeleiteten Klasse überschrieben
+    void setStatus(bool newStatus);
 };
 
 

@@ -29,3 +29,7 @@ bool Hardware::getStatus()
 {
     return (status);
 }
+
+void Hardware::setStatus(bool newStatus) {
+    status = newStatus;
+}
