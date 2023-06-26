@@ -12,23 +12,21 @@
 #define DOORCONTROL_HH
 
 #include "ncurses.h"
+#include "Betriebsmode.h"
 #include "DoorInterface.h"
 #include "Config.h"
-#include "Betriebsmode.h"
+
 #include <chrono>
 #include <ctime>
 #include <iostream>
-
 
 class DoorControl {
 
 private:
 	DoorInterface door_if;
 
-    Config confReader;
-    Betriebsmode *betrieb;
-
-
+    Betriebsmode betrieb;
+    //Betriebsmode *betrieb;
 
     //Sensoren - für Hardware Read
     unsigned char pins_port_0;
@@ -37,20 +35,21 @@ private:
     //Aktoren - für Hardware Write
     unsigned char pins_port_2 = 0;
 
-
 protected:
 
 public:
     DoorControl();
     ~DoorControl();
+
+
+
     void run();
+    void writeLog(std::string sLog, bool noNewLine = 0);
+    void readHardware(Config *conf);
+    void writeHardware(Config *conf);
 
-
-
-    void readHardware();
-    void writeHardware();
-    int buildcondition();
-    int buildentrance();
+    int buildcondition(Config *configReader);
+    int buildentrance(Config *configReader);
 
 };
 

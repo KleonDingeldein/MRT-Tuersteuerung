@@ -14,153 +14,158 @@
 #include <chrono>
 #include <ctime>
 
+
 DoorControl::DoorControl() :
     door_if(false, true),
-    confReader()
-
+    betrieb(0,3,0,0)
 {
 	// constructor
 	// ... maybe, insert your sensor and actor initialization here?
+}
 
-    //log
-    std::ofstream output;
-    output.open("log.txt");
-    output << "----start----\n";
-    output.close();
-
-    confReader.read("config.csv");
+DoorControl::~DoorControl() {
+    // destructor
+    writeLog("---Stop DoorControl run---");
+    writeLog("");
+    door_if.quit_doorcontrol_flag = true;
 
 }
 
-DoorControl::~DoorControl()
-{
-	// destructor
-	door_if.quit_doorcontrol_flag = true;
-
-    std::ofstream output;
-    output.open("log.txt", std::ios_base::app);
-    output << "----ende----\n";
-    output.close();
-
-}
-//main loop in here
 void DoorControl::run()
 {
+	// ... insert your main loop here ...
+	// example:
+
+    writeLog("---Start DoorControl run---");
 	std::string msg;		// temporary variable to construct message
 
-    /*
-    //Test fuer Aktorupdatefunktion wirteHardware
-    confReader.aktoren.at(0) = new Aktor(2,0,"Akt1",1);
-    confReader.aktoren.at(1) = new Aktor(2,1,"Akt2",1);
-    confReader.aktoren.at(2) = new Aktor(2,2,"Akt3",0);
-
-    writeHardware();
-     */
+    Config *confReader = new Config("config.txt");
 
     //erstellen des laufbetriebs
-    betrieb = new Betriebsmode(0,1,0,0);
+    //Betriebsmode betrieb = *new Betriebsmode(0,1,0,0);
 
+    /*writeHardware(confReader);
+    confReader->aktoren.at(1).setStatus(0);
+    writeHardware(confReader);*/
 
     //main loop
     while(!door_if.quit_doorcontrol_flag)
     {
-        readHardware(); //auslesen/updaten der sensorenliste
+
+        readHardware(confReader); //auslesen/updaten der sensorenliste
 
         //Beginn Unterscheidung der Betriebswahl
-        if (betriebswahl()==0) //0 Automatikbetrieb
+        if (confReader->betriebswahl()==0) //0 Automatikbetrieb
         {
-            betrieb.settype(0);
-            betrieb.setcondition(buildcondition());
-            betrieb.setentrance(buildentrance());
+            betrieb.setbtype(0);
+            betrieb.setcondition(buildcondition(confReader));
+            betrieb.setentrance(buildentrance(confReader));
 
-            betrieb.step();
+            betrieb.step(confReader);
 
             betrieb.setlasttype(0);
-            writeHardware(); //updaten der aktorenpins
+            writeHardware(confReader); //updaten der aktorenpins
 
         }
-        else if (betriebswahl()==1) //1 Handbetrieb
+        else if (confReader->betriebswahl()==1) //1 Handbetrieb
         {
-            betrieb.settype(1);
-            betrieb.setcondition(buildcondition());
-            betrieb.setentrance(buildentrance());
-
-            betrieb.step();
+            betrieb.setbtype(1);
+            betrieb.setcondition(buildcondition(confReader));
+            writeLog("condition: " + std::to_string(buildcondition(confReader)));
+            betrieb.setentrance(buildentrance(confReader));
+            writeLog("entrance: " + std::to_string(buildentrance(confReader)));
+            betrieb.step(confReader);
 
             betrieb.setlasttype(1);
-            writeHardware(); //updaten der aktorenpins
+            writeHardware(confReader); //updaten der aktorenpins
 
         }
-        else if (betriebswahl()==2) //2 Reparatur
+        else if (confReader->betriebswahl()==2) //2 Reparatur
         {
-            betrieb.settype(2);
-            betrieb.setcondition(buildcondition());
-            betrieb.setentrance(buildentrance());
+            betrieb.setbtype(2);
+            betrieb.setcondition(buildcondition(confReader));
+            betrieb.setentrance(buildentrance(confReader));
 
-            betrieb.step();
+            betrieb.step(confReader);
 
             betrieb.setlasttype(2);
-            writeHardware(); //updaten der aktorenpins
+            writeHardware(confReader); //updaten der aktorenpins
 
         }
-        else if (betriebswahl()==3) //3 Aus
+        else if (confReader->betriebswahl()==3) //3 Aus
         {
-            for (int i = 0; i < 8; ++i)  //Schleife um alle Aktoren 0 zusetzen
-            {
-                confReader.aktoren.at(i)->setStatus(0);
-            };
-            writeHardware(); //updaten der aktoren
-            lastBM = 3;
+            confReader->motoren_stopp();
+            writeHardware(confReader); //updaten der aktoren
         }
+        //construct counter message
+        msg = "press 'q'";
 
-		//construct counter message
-		msg = "press 'q'";
+        // set current message to be displayed by user interface
+        door_if.DebugString(msg);
 
-		// set current message to be displayed by user interface
-		door_if.DebugString(msg);
-
-	}
+    }
 }
 
-void DoorControl::readHardware() {
+void DoorControl::readHardware(Config *conf) {
 
     // x & 1 - Bit-Operator: Vergleicht das letze signifikate bit von x mit 1. Bei 1 -> 1 bei 0 -> 0
     door_if.DIO_Read(0, &pins_port_0);
     door_if.DIO_Read(1, &pins_port_1);
 
+
+    //writeLog("Port: 0 - Pins: " + std::to_string(pins_port_0));
+    //writeLog("Port: 1 - Pins: " + std::to_string(pins_port_1));
+
     //Aktualisierung des Status der Sensoren
-    for(int i = 0; i < (confReader.senoren.size() -1); i++)
+    for(int i = 0; i < (conf->sensoren.size() - 1); i++)
     {
         if (i<8)
         {
-            confReader.senoren.at(i)->setStatus((pins_port_0 >> i) & 1);
+            writeLog(std::to_string(((pins_port_0>>i) & 1)) ,1);
+            conf->sensoren.at(i).setStatus((pins_port_0 >> i) & 1);
+
         }
         else
         {
-            confReader.senoren.at(i)->setStatus((pins_port_1 >> (i - 8)) & 1);
+            writeLog(std::to_string(((pins_port_1 >> (i - 8)) & 1)) ,1);
+            conf->sensoren.at(i).setStatus((pins_port_1 >> (i - 8)) & 1);
         }
     }
+    writeLog("");
 }
 
-void DoorControl::writeHardware() {
+void DoorControl::writeHardware(Config *conf) {
+    pins_port_2 = 0;
 
-    for(int i = 0 ; i < confReader.aktoren.size(); i++)
+    for(int i = 0 ; i < (conf->aktoren.size()); i++)
     {
-        pins_port_2 = (confReader.aktoren.at(i)->getStatus() << (8-i));
+        //writeLog(std::to_string(conf->aktoren.at(i).getStatus()),true);
+        pins_port_2 |= (conf->aktoren.at(i).getStatus()<<i);
     }
-    if (pins_port_2 && "110")
-    {
-        std::ofstream output;
-        output.open("log.txt");
-        output << "passt\n";
-        output.close();
-    }
-
+    //writeLog("Port: 2 - Pins: " + std::to_string(pins_port_2));
     door_if.DIO_Write(2,pins_port_2);
 
 }
 
-int DoorControl::buildcondition() //codiert endlagenstatus und aktorstatus in automatenzustaende
+void DoorControl::writeLog(std::string sLog, bool noNewLine) {
+
+    //Logeintrag ohne Zeilenumbruch
+    if (noNewLine) {
+        std::ofstream output;
+        output.open("log.txt", std::ios_base::app);
+        output << sLog;
+        output.close();
+    }
+    //Logeintrag mit Zeilenumbruch
+    else{
+        std::ofstream output;
+        output.open("log.txt", std::ios_base::app);
+        output << sLog << "\n";
+        output.close();
+    }
+}
+
+int DoorControl::buildcondition(Config *confReader) //codiert endlagenstatus und aktorstatus in automatenzustaende
 {
     /* Codierung der Automatenzustaende
      * 0 Motoren für oeffnen und schliessen gleichzeitig aktiv
@@ -175,42 +180,42 @@ int DoorControl::buildcondition() //codiert endlagenstatus und aktorstatus in au
      * 9 Endlagegeschlossen, schliesst
      * 10 Endlagegeschlossen, oeffnet
      */
-    if (  oeffnet() && schliesst()  ){
+    if ( confReader->oeffnet() && confReader->schliesst()  ){
         return(0);
     }
-    else if ( endlage_offen() && entlage_geschlossen() ) {
+    else if ( confReader->endlage_offen() && confReader->endlage_geschlossen() ) {
         return(1);
     }
-    else if (!endlage_offen() && !entlage_geschlossen() && !oeffnet() && !schliesst() ) {
+    else if (!(confReader->endlage_offen()) && !(confReader->endlage_geschlossen()) && !(confReader->oeffnet()) && !(confReader->schliesst()) ) {
         return(2);
     }
-    else if (!endlage_offen() && !entlage_geschlossen() && oeffnet() && !schliesst() ) {
+    else if (!(confReader->endlage_offen()) && !(confReader->endlage_geschlossen()) && confReader->oeffnet() && !(confReader->schliesst()) ) {
         return(3);
     }
-    else if ( !endlage_offen() && !entlage_geschlossen() && !oeffnet() && schliesst() ) {
+    else if ( !(confReader->endlage_offen()) && !(confReader->endlage_geschlossen()) && !(confReader->oeffnet()) && confReader->schliesst() ) {
         return(4);
     }
-    else if (endlage_offen() && !entlage_geschlossen() && !oeffnet() && schliesst() ) {
+    else if (confReader->endlage_offen() && !(confReader->endlage_geschlossen()) && !(confReader->oeffnet()) && confReader->schliesst() ) {
         return(5);
     }
-    else if (endlage_offen() && !entlage_geschlossen() && !oeffnet() && schliesst() ) {
+    else if (confReader->endlage_offen() && !(confReader->endlage_geschlossen()) && !(confReader->oeffnet()) && confReader->schliesst() ) {
         return(6);
     }
-    else if (endlage_offen() && !entlage_geschlossen() && oeffnet() && !schliesst() ) {
+    else if (confReader->endlage_offen() && !(confReader->endlage_geschlossen()) && confReader->oeffnet() && !(confReader->schliesst()) ) {
         return(7);
     }
-    else if (!endlage_offen() && entlage_geschlossen() && !oeffnet() && !schliesst() ) {
+    else if (!(confReader->endlage_offen()) && confReader->endlage_geschlossen() && !(confReader->oeffnet()) && !(confReader->schliesst()) ) {
         return(8);
     }
-    else if (!endlage_offen() && entlage_geschlossen() && !oeffnet() && schliesst() ) {
+    else if (!(confReader->endlage_offen()) && confReader->endlage_geschlossen() && !(confReader->oeffnet()) && confReader->schliesst() ) {
         return(9);
     }
-    else if (!endlage_offen() && entlage_geschlossen() && oeffnet() && !schliesst() ) {
+    else if (!(confReader->endlage_offen()) && confReader->endlage_geschlossen() && confReader->oeffnet() && !(confReader->schliesst()) ) {
         return(10);
     }
 }
 
-int DoorControl::buildentrance() //codiert sensorstatus in uebergangsbedingungen
+int DoorControl::buildentrance(Config *confReader) //codiert sensorstatus in uebergangsbedingungen
 {
     /* Codierung der Uebergangsbedingungen
      * 0 kein Sensor aktiv
@@ -224,40 +229,56 @@ int DoorControl::buildentrance() //codiert sensorstatus in uebergangsbedingungen
      * 8 nur manuelles oeffnen und Person in Tuer und Person vor Tuer
      * 9 mehrere Sensoren aktiv nur fuer reparaturbetrieb
      * 10 manuelles oeffnen oder Person in Tuer oder Person vor Tuer nur fuer automatik
-     *
+     * 11 manuelles schließen stoppen durch Einklemmschutz
      */
-    if ( (betrieb.gettype() == 2) && mehrere_sensoren_aktiv()){
+
+    if ( (betrieb.getbtype() == 2) && confReader->mehrere_sensoren_aktiv()){
         return(9);
     } else
 
-    if (!manuelles_oeffnen() && !manuelles_schliessen() && !pesron_in_tuer() && !person_vor_tuer() ){
+    if (!(confReader->manuelles_oeffnen()) && !(confReader->manuelles_schliessen()) && !(confReader->person_in_tuer()) && !(confReader->person_vor_tuer()) ){
         return(0);
     }
-    else if (!manuelles_oeffnen() && !manuelles_schliessen() && !pesron_in_tuer() && person_vor_tuer()) {
+    else if (!(confReader->manuelles_oeffnen()) && !(confReader->manuelles_schliessen()) && !(confReader->person_in_tuer()) && confReader->person_vor_tuer() ) {
         return(1);
     }
-    else if (!manuelles_oeffnen() && !manuelles_schliessen() && pesron_in_tuer() && !person_vor_tuer()) {
+    else if (!(confReader->manuelles_oeffnen()) && !(confReader->manuelles_schliessen()) && confReader->person_in_tuer() && !(confReader->person_vor_tuer()) ) {
         return(2);
     }
-    else if (!manuelles_oeffnen() && !manuelles_schliessen() && pesron_in_tuer() && person_vor_tuer()) {
+    else if (!(confReader->manuelles_oeffnen()) && !(confReader->manuelles_schliessen()) && confReader->person_in_tuer() && confReader->person_vor_tuer()) {
         return(3);
     }
-    else if (!manuelles_oeffnen() && manuelles_schliessen() && !pesron_in_tuer() && !person_vor_tuer()) {
+    else if (  confReader->person_in_tuer() && confReader->manuelles_schliessen() ) {
+        return(11);
+    }
+
+    else if (!(confReader->manuelles_oeffnen()) &&
+            confReader->manuelles_schliessen() &&
+            !(confReader->person_in_tuer()) &&
+            !(confReader->person_vor_tuer())
+            ) {
+        writeLog("Status LSH: " + std::to_string(confReader->sensoren.at(7).getStatus()));
         return(4);
     }
-    else if (manuelles_oeffnen() && !manuelles_schliessen() && !pesron_in_tuer() && !person_vor_tuer()) {
+
+
+
+    else if ( (confReader->manuelles_oeffnen() || confReader->person_in_tuer()) && confReader->manuelles_schliessen() ) {
+        return(11);
+    }
+    else if (confReader->manuelles_oeffnen() && !(confReader->manuelles_schliessen()) && !(confReader->person_in_tuer()) && !(confReader->person_vor_tuer()) ) {
         return(5);
     }
-    else if (manuelles_oeffnen() && !manuelles_schliessen() && !pesron_in_tuer() && person_vor_tuer()) {
+    else if (confReader->manuelles_oeffnen() && !(confReader->manuelles_schliessen()) && !(confReader->person_in_tuer()) && confReader->person_vor_tuer() ) {
         return(6);
     }
-    else if (manuelles_oeffnen() && !manuelles_schliessen() && pesron_in_tuer() && !person_vor_tuer()) {
+    else if (confReader->manuelles_oeffnen() && !(confReader->manuelles_schliessen()) && confReader->person_in_tuer() && !(confReader->person_vor_tuer()) ) {
         return(7);
     }
-    else if (manuelles_oeffnen() && !manuelles_schliessen() && pesron_in_tuer() && person_vor_tuer()) {
+    else if (confReader->manuelles_oeffnen() && !(confReader->manuelles_schliessen()) && confReader->person_in_tuer() && confReader->person_vor_tuer() ) {
         return(8);
     }
-    else if (manuelles_oeffnen() || pesron_in_tuer() || person_vor_tuer()) {
+    else if (confReader->manuelles_oeffnen() || confReader->person_in_tuer() || confReader->person_vor_tuer()) {
         return(10);
     }
 
