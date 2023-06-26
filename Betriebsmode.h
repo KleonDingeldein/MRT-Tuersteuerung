@@ -4,6 +4,7 @@
 #include <iostream>
 #include <chrono>
 #include <ctime>
+#include "Config.h"
 
 class Betriebsmode {
 private:
@@ -20,7 +21,7 @@ public:
     void setlasttype(int newlasttype);
     void setbtype(int newbtype);
     unsigned int getbtype();
-    void step();
+    void step(Config* conf);
     void startTimer();
     void stopTimer();
     int getDuration();

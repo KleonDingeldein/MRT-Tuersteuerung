@@ -1,7 +1,7 @@
 #include "Betriebsmode.h"
-#include <iostream>
+#include "Config.h"
 #include <chrono>
-#include <ctime>
+#include <unistd.h>
 
 // Constructor
 Betriebsmode::Betriebsmode(unsigned int btype, unsigned int lasttype, unsigned int condition, unsigned int entrance) :
@@ -32,7 +32,7 @@ void Betriebsmode::setlasttype(int newlasttype) {
 }
 
 void Betriebsmode::setbtype(int newbtype) {
-    type = newbtype;
+    btype = newbtype;
 }
 
 unsigned int Betriebsmode::getbtype(){
@@ -53,20 +53,19 @@ int Betriebsmode::getDuration() {
     return(std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
 }
 
-void Betriebsmode::step() {
+void Betriebsmode::step(Config* conf) {
     if (condition==0 || condition==1 || condition==7 || condition==9){
-        motoren_stopp();
+        conf->motoren_stopp();
         //settype(3); //errorsituation automatishce betriebswahl 3 (aus)
-        break;
     }
 
         //step fuer automatikbetrieb
-    if (type==0){
+    else if (btype==0){
         if(lasttype==0){
             //weiter im automatikmodus
             if (((condition!=10||condition!=3) && entrance==4) || (getDuration()>=3000)){
                 //Timer stoppen
-                schliessen();
+                conf->schliessen();
             }
             else if (condition==5 && (entrance!=0||entrance!=4)){
                 //Timer starten
@@ -74,13 +73,13 @@ void Betriebsmode::step() {
 
             }
             else if ((( condition==2 || condition==5 || condition==8 ) && entrance==4)||(condition==8 && entrance==4)){
-                motoren_stopp();
+                conf->motoren_stopp();
             }
             else if ((( condition==2 || condition==4 || condition==5 || condition==6) && entrance==4)||(( condition==4 ||condition==6) && entrance==0)){
-                schliessen();
+                conf->schliessen();
             }
             else if (condition!=5 && entrance!=4||(( condition==3 || condition==10 ) && entrance==4)){
-                oeffnen();
+                conf->oeffnen();
             }
 
         }
@@ -92,38 +91,44 @@ void Betriebsmode::step() {
              *
              */
 
-            lampe_an();
+            conf->lampe_an();
             usleep(5000*1000); //5s
-            lampe_aus();
+            conf->lampe_aus();
         }
     }
 
     //step fuer handbetrieb
-    else if (type==1) {
-        if ((condition==2 && (entrance==0||entrance==2))||((condition==4||condition==6) && (entrance==7||entrance==2||entrance==5))||(condition==5 && (entrance==0||entrance==2||entrance==5||entrance==7))||(condition==8 && (entrance==2||entrance==4))){
-            motoren_stopp();
+    else if (btype==1) {
+        if ( (condition==2 && (entrance==0||entrance==2)) ||
+             ((condition==4||condition==6) && (entrance==7||entrance==2||entrance==5)) ||
+             (condition==5 && (entrance==0||entrance==2||entrance==5||entrance==7))||
+             (condition==8 && (entrance==2||entrance==4)) ||
+             (condition==4 && entrance==11)
+            )
+        {
+            conf->motoren_stopp();
         }
         else if ( ((condition==2 || condition==4 || condition==5 || condition==6 ) && entrance==4)||((condition==4||condition==6) && entrance==1) ){
-            schliessen();
+            conf->schliessen();
         }
         else if ( ((condition==4||condition==6) && (entrance==0||entrance==4||entrance==2||entrance==5||entrance==7))||((condition==2||condition==10) && (entrance==5||entrance==7)) ){
-            oeffnen();
+            conf->oeffnen();
         }
     }
 
     //step fuer reparaturbetrieb
-    else if (type==2) {
+    else if (btype==2) {
         if ((condition==5 && (entrance==1||entrance==2||entrance==5))||(condition==8 && entrance==4)||entrance==0||entrance==9){
-            motoren_stopp();
-            lampe_aus();
+            conf->motoren_stopp();
+            conf->lampe_aus();
         }
         else if (condition!=8 && entrance==4){
-            lampe_an();
-            schliessen();
+            conf->lampe_an();
+            conf->schliessen();
         }
         else if (condition!=5 && (entrance==1||entrance==2||entrance==5)){
-            lampe_an();
-            oeffnen();
+            conf->lampe_an();
+            conf->oeffnen();
         }
     }
 
